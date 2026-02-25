@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>VendaPro Control</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{font-family:-apple-system;background:#f2f2f7;margin:0;color:#000}
+header{background:#000;color:#fff;padding:20px;text-align:center;font-size:20px;font-weight:bold}
+.container{padding:15px}
+.card{background:#fff;padding:15px;margin-bottom:15px;border-radius:15px;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
+input,select,button{padding:12px;width:100%;margin:6px 0;border-radius:10px;border:1px solid #ccc;font-size:16px}
+button{background:#007aff;color:#fff;font-weight:bold;border:none}
+h3{margin-top:0}
+canvas{background:#fff;border-radius:15px}
+</style>
+</head>
+<body>
+
+<header>VendaPro Control</header>
+
+<div class="container">
+
+<div class="card">
+<h3>Dashboard</h3>
+<p id="fat"></p>
+<p id="luc"></p>
+<p id="margem"></p>
+<canvas id="grafico" height="150"></canvas>
+</div>
+
+<div class="card">
+<h3>Cadastrar Produto</h3>
+<input id="pnome" placeholder="Nome">
+<input id="pcusto" type="number" placeholder="Custo">
+<input id="ppreco" type="number" placeholder="Preço">
+<input id="pestoque" type="number" placeholder="Estoque">
+<button onclick="addProduto()">Salvar</button>
+</div>
+
+<div class="card">
+<h3>Registrar Venda</h3>
+<select id="vproduto"></select>
+<input id="vqtd" type="number" placeholder="Quantidade">
+<button onclick="vender()">Registrar</button>
+</div>
+
+</div>
+
+<script>
+let produtos=JSON.parse(localStorage.getItem("produtos"))||[];
+let vendas=JSON.parse(localStorage.getItem("vendas"))||[];
+
+function salvar(){
+localStorage.setItem("produtos",JSON.stringify(produtos));
+localStorage.setItem("vendas",JSON.stringify(vendas));
+atualizar();
+}
+
+function atualizar(){
+let select=document.getElementById("vproduto");
+select.innerHTML="";
+produtos.forEach((p,i)=>{
+let op=document.createElement("option");
+op.value=i;
+op.text=p.nome+" (Est:"+p.estoque+")";
+select.appendChild(op);
+});
+
+let fat=0,luc=0;
+vendas.forEach(v=>{fat+=v.total;luc+=v.lucro});
+
+document.getElementById("fat").innerText="Faturamento: R$ "+fat.toFixed(2);
+document.getElementById("luc").innerText="Lucro: R$ "+luc.toFixed(2);
+document.getElementById("margem").innerText="Margem Média: "+(fat?((luc/fat)*100).toFixed(1):0)+"%";
+
+desenharGrafico();
+}
+
+function addProduto(){
+produtos.push({
+nome:pnome.value,
+custo:parseFloat(pcusto.value),
+preco:parseFloat(ppreco.value),
+estoque:parseInt(pestoque.value)
+});
+salvar();
+}
+
+function vender(){
+let i=vproduto.value;
+let qtd=parseInt(vqtd.value);
+let p=produtos[i];
+if(p.estoque<qtd){alert("Estoque insuficiente");return;}
+p.estoque-=qtd;
+let total=p.preco*qtd;
+let lucro=(p.preco-p.custo)*qtd;
+vendas.push({total,lucro,data:new Date().getMonth()});
+salvar();
+}
+
+function desenharGrafico(){
+let ctx=document.getElementById("grafico").getContext("2d");
+ctx.clearRect(0,0,400,200);
+let meses=new Array(12).fill(0);
+vendas.forEach(v=>meses[v.data]+=v.total);
+let max=Math.max(...meses,10);
+meses.forEach((v,i)=>{
+let altura=(v/max)*120;
+ctx.fillStyle="#007aff";
+ctx.fillRect(i*30,150-altura,20,altura);
+});
+}
+
+atualizar();
+</script>
+
+</body>
+</html>
