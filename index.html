@@ -3,229 +3,224 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UP COMPUTER 5.0</title>
-
+<title>Up Enterprise 6.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-
 <style>
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+
 body{
-margin:0;
-font-family:'Poppins',sans-serif;
-background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+background:linear-gradient(135deg,#141e30,#243b55);
 color:#fff;
 }
 
-header{
+/* LOGIN */
+
+#login{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.login-box{
+background:rgba(255,255,255,0.05);
+padding:40px;
+border-radius:20px;
+backdrop-filter:blur(20px);
+width:320px;
 text-align:center;
-padding:30px 20px;
+box-shadow:0 20px 50px rgba(0,0,0,0.6);
 }
 
 .logo{
 font-size:28px;
 font-weight:700;
-letter-spacing:2px;
+margin-bottom:10px;
 background:linear-gradient(90deg,#00ffcc,#00ff88);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
-animation:glow 2s infinite alternate;
 }
 
-@keyframes glow{
-from{text-shadow:0 0 10px #00ff88;}
-to{text-shadow:0 0 25px #00ffcc;}
+input{
+width:100%;
+padding:12px;
+margin-top:15px;
+border:none;
+border-radius:12px;
 }
 
-.subtitle{
-font-size:13px;
-opacity:0.7;
+button{
+width:100%;
+padding:12px;
+margin-top:15px;
+border:none;
+border-radius:12px;
+background:#00ff88;
+font-weight:600;
+cursor:pointer;
 }
 
-.container{
+/* APP */
+
+#app{
+display:none;
+height:100vh;
+display:flex;
+}
+
+.sidebar{
+width:220px;
+background:#0f172a;
 padding:20px;
+}
+
+.sidebar h2{
+margin-bottom:30px;
+font-size:18px;
+}
+
+.sidebar button{
+background:none;
+color:#fff;
+text-align:left;
+margin-bottom:10px;
+}
+
+.content{
+flex:1;
+padding:30px;
+overflow-y:auto;
 }
 
 .card{
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(12px);
-border-radius:20px;
+background:#1e293b;
 padding:20px;
+border-radius:16px;
 margin-bottom:20px;
 box-shadow:0 10px 30px rgba(0,0,0,0.4);
-transition:.3s;
 }
 
-.card:hover{
-transform:translateY(-5px);
+.card h3{
+font-size:14px;
+opacity:0.7;
 }
 
-.title{
-font-size:12px;
-opacity:.7;
-margin-bottom:5px;
-}
-
-.value{
+.card p{
 font-size:24px;
 font-weight:600;
+margin-top:5px;
 }
 
 .green{color:#00ff88}
-.yellow{color:#ffc107}
 .red{color:#ff4d4d}
 
-.meta-bar{
-height:10px;
-background:#1f2a35;
-border-radius:10px;
-overflow:hidden;
-margin-top:8px;
-}
-
-.meta-progress{
-height:100%;
-background:linear-gradient(90deg,#00ff88,#00c853);
-transition:width .6s;
-}
-
-.health{
-margin-top:8px;
-font-weight:600;
-}
-
-footer{
-text-align:center;
-padding:20px;
-opacity:.5;
-font-size:12px;
-}
-
 canvas{
-margin-top:15px;
+margin-top:20px;
 }
 
 </style>
 </head>
 <body>
 
-<header>
-<div class="logo">UP COMPUTER</div>
-<div class="subtitle">Enterprise Dashboard 5.0</div>
-</header>
-
-<div class="container">
-
-<div class="card">
-<div class="title">FATURAMENTO TOTAL</div>
-<div id="fat" class="value"></div>
+<!-- LOGIN -->
+<div id="login">
+<div class="login-box">
+<div class="logo">UP ENTERPRISE</div>
+<p>Faça login para continuar</p>
+<input type="text" id="user" placeholder="Usuário">
+<input type="password" id="pass" placeholder="Senha">
+<button onclick="entrar()">Entrar</button>
+</div>
 </div>
 
-<div class="card">
-<div class="title">LUCRO LÍQUIDO</div>
-<div id="luc" class="value"></div>
+<!-- APP -->
+<div id="app">
+<div class="sidebar">
+<h2>Menu</h2>
+<button onclick="mostrar('dashboard')">Dashboard</button>
+<button onclick="mostrar('financeiro')">Financeiro</button>
+<button onclick="mostrar('relatorio')">Relatórios</button>
+<button onclick="logout()">Sair</button>
 </div>
 
-<div class="card">
-<div class="title">MARGEM DE LUCRO</div>
-<div id="margem" class="value"></div>
-</div>
+<div class="content">
 
+<div id="dashboard" class="screen">
 <div class="card">
-<div class="title">MARGEM DE CONTRIBUIÇÃO</div>
-<div id="contrib" class="value"></div>
-</div>
-
-<div class="card">
-<div class="title">META MENSAL</div>
-<div id="metaTexto"></div>
-<div class="meta-bar"><div id="metaBar" class="meta-progress"></div></div>
+<h3>Faturamento</h3>
+<p id="fat" class="green"></p>
 </div>
 
 <div class="card">
-<div class="title">SAÚDE FINANCEIRA</div>
-<div id="health" class="health"></div>
+<h3>Lucro</h3>
+<p id="lucro"></p>
 </div>
 
 <div class="card">
-<div class="title">GRÁFICO DE FATURAMENTO</div>
-<canvas id="grafico" height="150"></canvas>
+<h3>Margem de Lucro</h3>
+<p id="margem"></p>
+</div>
+
+<canvas id="grafico" height="120"></canvas>
+</div>
+
+<div id="financeiro" class="screen" style="display:none">
+<div class="card">
+<h3>Resumo Financeiro</h3>
+<p>Sistema preparado para expansão.</p>
+</div>
+</div>
+
+<div id="relatorio" class="screen" style="display:none">
+<div class="card">
+<h3>Relatórios Inteligentes</h3>
+<p>Versão 7.0 incluirá exportação PDF.</p>
+</div>
 </div>
 
 </div>
-
-<footer>
-UP COMPUTER © 2026
-</footer>
+</div>
 
 <script>
 
-let meta = JSON.parse(localStorage.getItem("meta")) || 30000;
-let vendas = JSON.parse(localStorage.getItem("vendas")) || [];
-let despesas = JSON.parse(localStorage.getItem("despesas")) || [];
+let faturamento=45000;
+let lucro=12000;
+
+function entrar(){
+if(user.value==="admin" && pass.value==="123"){
+login.style.display="none";
+app.style.display="flex";
+atualizar();
+}else{
+alert("Usuário ou senha incorretos");
+}
+}
+
+function logout(){
+location.reload();
+}
+
+function mostrar(id){
+document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
+document.getElementById(id).style.display="block";
+}
 
 function atualizar(){
-
-let faturamento=0;
-let lucroBruto=0;
-
-vendas.forEach(v=>{
-faturamento+=v.total;
-lucroBruto+=v.lucro;
-});
-
-let despTotal=0;
-despesas.forEach(d=>despTotal+=d.valor);
-
-let lucroLiquido=lucroBruto-despTotal;
-
-let margemLucro=faturamento?((lucroLiquido/faturamento)*100):0;
-let margemContrib=faturamento?((lucroBruto/faturamento)*100):0;
-
 fat.innerText="R$ "+faturamento.toFixed(2);
-luc.innerText="R$ "+lucroLiquido.toFixed(2);
-margem.innerText=margemLucro.toFixed(1)+"%";
-contrib.innerText=margemContrib.toFixed(1)+"%";
+lucro > 0 ? lucroEl = lucro : lucroEl = lucro;
+document.getElementById("lucro").innerText="R$ "+lucro.toFixed(2);
+let margem=(lucro/faturamento)*100;
+margem > 20 ?
+document.getElementById("margem").className="green":
+document.getElementById("margem").className="red";
+document.getElementById("margem").innerText=margem.toFixed(1)+"%";
 
-let perc=(faturamento/meta)*100;
-metaTexto.innerText=perc.toFixed(0)+"% da meta de R$ "+meta;
-metaBar.style.width=(perc>100?100:perc)+"%";
-
-let healthText="";
-let healthColor="green";
-
-if(margemLucro>25){
-healthText="Empresa Saudável 🚀";
-healthColor="green";
-}else if(margemLucro>10){
-healthText="Atenção Estratégica ⚠";
-healthColor="yellow";
-}else{
-healthText="Risco Financeiro 🔴";
-healthColor="red";
-}
-
-health.innerText=healthText;
-health.className="health "+healthColor;
-
-desenharGrafico();
-}
-
-function desenharGrafico(){
 let ctx=document.getElementById("grafico").getContext("2d");
-ctx.clearRect(0,0,400,200);
-
-let meses=new Array(12).fill(0);
-vendas.forEach(v=>meses[v.data]+=v.total);
-
-let max=Math.max(...meses,10);
-
-meses.forEach((v,i)=>{
-let h=(v/max)*120;
 ctx.fillStyle="#00ff88";
-ctx.fillRect(i*30,150-h,20,h);
-});
+ctx.fillRect(10,100,40,-(faturamento/500));
+ctx.fillRect(80,100,40,-(lucro/100));
 }
-
-atualizar();
 
 </script>
 
