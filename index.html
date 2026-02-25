@@ -2,52 +2,139 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>VendaPro Control</title>
+<title>UP COMPUTER - Sistema</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{font-family:-apple-system;background:#f2f2f7;margin:0;color:#000}
-header{background:#000;color:#fff;padding:20px;text-align:center;font-size:20px;font-weight:bold}
-.container{padding:15px}
-.card{background:#fff;padding:15px;margin-bottom:15px;border-radius:15px;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
-input,select,button{padding:12px;width:100%;margin:6px 0;border-radius:10px;border:1px solid #ccc;font-size:16px}
-button{background:#007aff;color:#fff;font-weight:bold;border:none}
-h3{margin-top:0}
-canvas{background:#fff;border-radius:15px}
+body{
+  margin:0;
+  background:#0f0f0f;
+  font-family:-apple-system;
+  color:#fff;
+}
+header{
+  padding:20px;
+  font-size:18px;
+  font-weight:bold;
+}
+.container{
+  padding:15px;
+}
+.card{
+  background:#161616;
+  padding:18px;
+  border-radius:18px;
+  margin-bottom:15px;
+  border:1px solid #1f1f1f;
+}
+.card-green{
+  border:1px solid #00ff88;
+}
+.title{
+  font-size:13px;
+  color:#aaa;
+  margin-bottom:5px;
+}
+.value{
+  font-size:26px;
+  font-weight:bold;
+}
+.meta-bar{
+  background:#222;
+  height:10px;
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:10px;
+}
+.meta-progress{
+  background:#00ff88;
+  height:100%;
+}
+input,button,select{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:none;
+  margin-top:8px;
+  font-size:16px;
+}
+button{
+  background:#00ff88;
+  font-weight:bold;
+}
+.top-item{
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+  background:#111;
+  border-radius:10px;
+  margin-top:6px;
+}
+canvas{
+  margin-top:10px;
+}
 </style>
 </head>
 <body>
 
-<header>VendaPro Control</header>
+<header>UP COMPUTER</header>
 
 <div class="container">
 
+<div class="card card-green">
+<div class="title">META MENSAL</div>
+<div id="metaTexto"></div>
+<div class="meta-bar">
+<div id="metaBar" class="meta-progress"></div>
+</div>
+</div>
+
 <div class="card">
-<h3>Dashboard</h3>
-<p id="fat"></p>
-<p id="luc"></p>
-<p id="margem"></p>
+<div class="title">FATURAMENTO</div>
+<div id="fat" class="value"></div>
+</div>
+
+<div class="card">
+<div class="title">LUCRO BRUTO</div>
+<div id="luc" class="value"></div>
+</div>
+
+<div class="card">
+<div class="title">MARGEM</div>
+<div id="margem" class="value"></div>
+</div>
+
+<div class="card">
+<div class="title">TOP CATEGORIAS</div>
+<div id="topCategorias"></div>
+</div>
+
+<div class="card">
+<div class="title">GRÁFICO MENSAL</div>
 <canvas id="grafico" height="150"></canvas>
 </div>
 
 <div class="card">
-<h3>Cadastrar Produto</h3>
-<input id="pnome" placeholder="Nome">
-<input id="pcusto" type="number" placeholder="Custo">
-<input id="ppreco" type="number" placeholder="Preço">
-<input id="pestoque" type="number" placeholder="Estoque">
-<button onclick="addProduto()">Salvar</button>
+<div class="title">CADASTRAR PRODUTO</div>
+<input id="nome" placeholder="Nome">
+<input id="categoria" placeholder="Categoria">
+<input id="custo" type="number" placeholder="Custo">
+<input id="preco" type="number" placeholder="Preço">
+<input id="estoque" type="number" placeholder="Estoque">
+<button onclick="addProduto()">Salvar Produto</button>
 </div>
 
 <div class="card">
-<h3>Registrar Venda</h3>
-<select id="vproduto"></select>
-<input id="vqtd" type="number" placeholder="Quantidade">
+<div class="title">REGISTRAR VENDA</div>
+<select id="produtoVenda"></select>
+<input id="qtd" type="number" placeholder="Quantidade">
 <button onclick="vender()">Registrar</button>
 </div>
 
 </div>
 
 <script>
+let meta=20000;
+
 let produtos=JSON.parse(localStorage.getItem("produtos"))||[];
 let vendas=JSON.parse(localStorage.getItem("vendas"))||[];
 
@@ -58,8 +145,11 @@ atualizar();
 }
 
 function atualizar(){
-let select=document.getElementById("vproduto");
+let fat=0,luc=0;
+let categorias={};
+let select=document.getElementById("produtoVenda");
 select.innerHTML="";
+
 produtos.forEach((p,i)=>{
 let op=document.createElement("option");
 op.value=i;
@@ -67,35 +157,52 @@ op.text=p.nome+" (Est:"+p.estoque+")";
 select.appendChild(op);
 });
 
-let fat=0,luc=0;
-vendas.forEach(v=>{fat+=v.total;luc+=v.lucro});
+vendas.forEach(v=>{
+fat+=v.total;
+luc+=v.lucro;
+categorias[v.categoria]=(categorias[v.categoria]||0)+v.qtd;
+});
 
-document.getElementById("fat").innerText="Faturamento: R$ "+fat.toFixed(2);
-document.getElementById("luc").innerText="Lucro: R$ "+luc.toFixed(2);
-document.getElementById("margem").innerText="Margem Média: "+(fat?((luc/fat)*100).toFixed(1):0)+"%";
+document.getElementById("fat").innerText="R$ "+fat.toFixed(2);
+document.getElementById("luc").innerText="R$ "+luc.toFixed(2);
+document.getElementById("margem").innerText=(fat?((luc/fat)*100).toFixed(1):0)+"%";
+
+let perc=(fat/meta)*100;
+document.getElementById("metaTexto").innerText=perc.toFixed(0)+"% de R$ "+meta.toLocaleString();
+document.getElementById("metaBar").style.width=(perc>100?100:perc)+"%";
+
+let topDiv=document.getElementById("topCategorias");
+topDiv.innerHTML="";
+Object.entries(categorias)
+.sort((a,b)=>b[1]-a[1])
+.slice(0,5)
+.forEach((c,i)=>{
+topDiv.innerHTML+=`<div class="top-item"><div>#${i+1} ${c[0]}</div><div>${c[1]} un</div></div>`;
+});
 
 desenharGrafico();
 }
 
 function addProduto(){
 produtos.push({
-nome:pnome.value,
-custo:parseFloat(pcusto.value),
-preco:parseFloat(ppreco.value),
-estoque:parseInt(pestoque.value)
+nome:nome.value,
+categoria:categoria.value,
+custo:parseFloat(custo.value),
+preco:parseFloat(preco.value),
+estoque:parseInt(estoque.value)
 });
 salvar();
 }
 
 function vender(){
-let i=vproduto.value;
-let qtd=parseInt(vqtd.value);
+let i=produtoVenda.value;
+let qtd=parseInt(qtd.value);
 let p=produtos[i];
 if(p.estoque<qtd){alert("Estoque insuficiente");return;}
 p.estoque-=qtd;
 let total=p.preco*qtd;
 let lucro=(p.preco-p.custo)*qtd;
-vendas.push({total,lucro,data:new Date().getMonth()});
+vendas.push({total,lucro,categoria:p.categoria,qtd,data:new Date().getMonth()});
 salvar();
 }
 
@@ -107,7 +214,7 @@ vendas.forEach(v=>meses[v.data]+=v.total);
 let max=Math.max(...meses,10);
 meses.forEach((v,i)=>{
 let altura=(v/max)*120;
-ctx.fillStyle="#007aff";
+ctx.fillStyle="#00ff88";
 ctx.fillRect(i*30,150-altura,20,altura);
 });
 }
